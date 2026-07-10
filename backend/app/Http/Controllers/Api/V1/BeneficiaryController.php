@@ -68,6 +68,16 @@ class BeneficiaryController extends Controller
     {
         $validated = $request->validate([
             'full_name' => ['sometimes', 'string', 'max:160'],
+            'phone' => [
+                'sometimes',
+                'string',
+                'max:32',
+                Rule::unique('beneficiaries', 'phone')
+                    ->where(fn ($query) => $query->where('user_id', $this->currentUserId()))
+                    ->ignore($beneficiary),
+            ],
+            'country_code' => ['sometimes', 'string', 'size:2'],
+            'operator_code' => ['sometimes', 'string', 'max:40'],
             'relationship' => ['nullable', 'string', 'max:60'],
             'is_favorite' => ['sometimes', 'boolean'],
         ]);
@@ -79,9 +89,31 @@ class BeneficiaryController extends Controller
 
         abort_if(!$exists, 404, 'Beneficiary not found');
 
+        $updates = $validated;
+        unset($updates['country_code'], $updates['operator_code']);
+
+        if (array_key_exists('country_code', $validated)) {
+            $updates['country_id'] = DB::table('countries')
+                ->where('code', strtoupper($validated['country_code']))
+                ->value('id');
+        }
+
+        if (array_key_exists('operator_code', $validated)) {
+            $updates['operator_id'] = DB::table('operators')
+                ->where('code', $validated['operator_code'])
+                ->value('id');
+        }
+
+        abort_if(
+            (array_key_exists('country_id', $updates) && !$updates['country_id'])
+            || (array_key_exists('operator_id', $updates) && !$updates['operator_id']),
+            422,
+            'Invalid country or operator'
+        );
+
         DB::table('beneficiaries')
             ->where('id', $beneficiary)
-            ->update(array_merge($validated, ['updated_at' => now()]));
+            ->update(array_merge($updates, ['updated_at' => now()]));
 
         return $this->show($beneficiary);
     }

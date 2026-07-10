@@ -83,11 +83,12 @@ class DemoApiTest extends TestCase
             ]);
     }
 
-    public function test_demo_api_can_create_beneficiary_and_mark_notifications_read(): void
+    public function test_demo_api_can_manage_beneficiary_and_mark_notifications_read(): void
     {
         $phone = '+22997' . random_int(1000000, 9999999);
+        $updatedPhone = '+22507' . random_int(1000000, 9999999);
 
-        $this->postJson('/api/v1/beneficiaries', [
+        $beneficiaryId = $this->postJson('/api/v1/beneficiaries', [
             'full_name' => 'Test Beneficiary',
             'phone' => $phone,
             'country_code' => 'BJ',
@@ -95,7 +96,26 @@ class DemoApiTest extends TestCase
             'is_favorite' => true,
         ])
             ->assertCreated()
-            ->assertJsonStructure(['data' => ['id', 'full_name', 'country_code', 'operator_code']]);
+            ->assertJsonStructure(['data' => ['id', 'full_name', 'country_code', 'operator_code']])
+            ->json('data.id');
+
+        $this->putJson("/api/v1/beneficiaries/{$beneficiaryId}", [
+            'full_name' => 'Test Beneficiary Updated',
+            'phone' => $updatedPhone,
+            'country_code' => 'CI',
+            'operator_code' => 'orange_ci',
+            'is_favorite' => false,
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.full_name', 'Test Beneficiary Updated')
+            ->assertJsonPath('data.phone', $updatedPhone)
+            ->assertJsonPath('data.country_code', 'CI')
+            ->assertJsonPath('data.operator_code', 'orange_ci')
+            ->assertJsonPath('data.is_favorite', false);
+
+        $this->postJson("/api/v1/beneficiaries/{$beneficiaryId}/favorite")
+            ->assertOk()
+            ->assertJsonPath('data.is_favorite', true);
 
         $notificationId = $this->getJson('/api/v1/notifications')
             ->assertOk()
@@ -108,5 +128,11 @@ class DemoApiTest extends TestCase
         $this->postJson('/api/v1/notifications/read-all')
             ->assertOk()
             ->assertJsonStructure(['data']);
+
+        $this->deleteJson("/api/v1/beneficiaries/{$beneficiaryId}")
+            ->assertNoContent();
+
+        $this->getJson("/api/v1/beneficiaries/{$beneficiaryId}")
+            ->assertNotFound();
     }
 }

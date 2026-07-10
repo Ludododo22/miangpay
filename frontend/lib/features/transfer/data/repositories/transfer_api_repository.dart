@@ -53,6 +53,39 @@ class TransferApiRepository implements TransferRepository {
   }
 
   @override
+  Future<BeneficiaryModel> updateBeneficiary({
+    required String id,
+    required String fullName,
+    required String phone,
+    required CountryModel country,
+    required OperatorModel operator,
+    required bool isFavorite,
+  }) async {
+    final json = await _client.putJson(
+      '/beneficiaries/$id',
+      data: {
+        'full_name': fullName,
+        'phone': phone,
+        'country_code': country.code,
+        'operator_code': operator.id,
+        'is_favorite': isFavorite,
+      },
+    );
+    return _beneficiaryFromJson(_dataMap(json));
+  }
+
+  @override
+  Future<void> deleteBeneficiary(String id) async {
+    await _client.deleteJson('/beneficiaries/$id');
+  }
+
+  @override
+  Future<BeneficiaryModel> toggleBeneficiaryFavorite(String id) async {
+    final json = await _client.postJson('/beneficiaries/$id/favorite');
+    return _beneficiaryFromJson(_dataMap(json));
+  }
+
+  @override
   Future<FeeQuoteModel> calculateFee({
     required double amount,
     required CountryModel sourceCountry,

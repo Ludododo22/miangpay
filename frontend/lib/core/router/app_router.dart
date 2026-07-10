@@ -13,6 +13,7 @@ import '../../features/kyc/presentation/screens/kyc_review_screen.dart';
 import '../../features/kyc/presentation/screens/kyc_selfie_screen.dart';
 import '../../features/beneficiaries/presentation/screens/beneficiaries_screen.dart';
 import '../../features/beneficiaries/presentation/screens/beneficiary_detail_screen.dart';
+import '../../features/beneficiaries/presentation/screens/edit_beneficiary_screen.dart';
 import '../../features/beneficiaries/presentation/screens/add_beneficiary_screen.dart';
 import '../../features/history/presentation/screens/transaction_detail_screen.dart';
 import '../../features/history/presentation/screens/history_receipt_screen.dart';
@@ -145,6 +146,11 @@ class AppRouter {
       GoRoute(
           path: '/beneficiaries/new',
           builder: (_, __) => const AddBeneficiaryScreen()),
+      GoRoute(
+        path: '/beneficiaries/edit/:id',
+        builder: (_, state) =>
+            EditBeneficiaryScreen(beneficiaryId: state.pathParameters['id']!),
+      ),
       GoRoute(
         path: '/beneficiaries/detail/:id',
         builder: (_, state) =>

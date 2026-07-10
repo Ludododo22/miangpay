@@ -106,7 +106,7 @@ C:\flutter\flutter\bin\cache\dart-sdk\bin\dart.exe analyze lib
 
 - Remplacer le token demo par une authentification reelle, par exemple Sanctum ou Passport.
 - Ajouter migrations Laravel officielles si le schema SQL doit devenir source de verite applicative.
-- Completer les beneficiaires avec modification, suppression et choix fin des favoris.
 - Persister les preferences de notifications et automatiser les rafraichissements temps reel utiles.
+- Ajouter une vraie recherche/filtre sur les beneficiaires et historiques quand les volumes augmentent.
 - Integrer PAWAPAY via l'adaptateur prevu, avec environnement sandbox puis production.
 - Ajouter tests API par endpoint et tests widget sur les parcours critiques.

@@ -19,6 +19,19 @@ abstract class TransferRepository {
     required bool isFavorite,
   });
 
+  Future<BeneficiaryModel> updateBeneficiary({
+    required String id,
+    required String fullName,
+    required String phone,
+    required CountryModel country,
+    required OperatorModel operator,
+    required bool isFavorite,
+  });
+
+  Future<void> deleteBeneficiary(String id);
+
+  Future<BeneficiaryModel> toggleBeneficiaryFavorite(String id);
+
   Future<FeeQuoteModel> calculateFee({
     required double amount,
     required CountryModel sourceCountry,

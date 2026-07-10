@@ -5,7 +5,7 @@ import '../models/operator_model.dart';
 import '../models/receipt_model.dart';
 
 class FakeTransferDatasource {
-  static final List<BeneficiaryModel> _createdBeneficiaries = [];
+  static final List<BeneficiaryModel> _beneficiaries = [];
 
   static const countries = [
     CountryModel(
@@ -157,53 +157,8 @@ class FakeTransferDatasource {
 
   Future<List<BeneficiaryModel>> getBeneficiaries() async {
     await Future<void>.delayed(const Duration(milliseconds: 250));
-    final bj = countries.firstWhere((c) => c.code == 'BJ');
-    final ci = countries.firstWhere((c) => c.code == 'CI');
-    final sn = countries.firstWhere((c) => c.code == 'SN');
-    final cm = countries.firstWhere((c) => c.code == 'CM');
-    final mtnBj = operators.firstWhere((o) => o.countryCode == 'BJ');
-    final orangeCi = operators.firstWhere((o) => o.id == 'orange_ci');
-    final orangeSn = operators.firstWhere((o) => o.id == 'orange_sn');
-    final mtnCm = operators.firstWhere((o) => o.id == 'mtn_cm');
-    return [
-      BeneficiaryModel(
-        id: 'b1',
-        fullName: 'Ahmed Diallo',
-        phone: '+229 61 23 45 67',
-        country: bj,
-        operator: mtnBj,
-        isFavorite: true,
-        initials: 'AD',
-      ),
-      BeneficiaryModel(
-        id: 'b2',
-        fullName: 'Fatou Koffi',
-        phone: '+225 07 44 55 66',
-        country: ci,
-        operator: orangeCi,
-        isFavorite: true,
-        initials: 'FK',
-      ),
-      BeneficiaryModel(
-        id: 'b3',
-        fullName: 'Mamadou Ndiaye',
-        phone: '+221 77 321 45 98',
-        country: sn,
-        operator: orangeSn,
-        isFavorite: false,
-        initials: 'MN',
-      ),
-      BeneficiaryModel(
-        id: 'b4',
-        fullName: 'Jean Fotso',
-        phone: '+237 6 71 00 44 22',
-        country: cm,
-        operator: mtnCm,
-        isFavorite: false,
-        initials: 'JF',
-      ),
-      ..._createdBeneficiaries,
-    ];
+    _ensureSeedBeneficiaries();
+    return List<BeneficiaryModel>.unmodifiable(_beneficiaries);
   }
 
   Future<BeneficiaryModel> createBeneficiary({
@@ -214,6 +169,7 @@ class FakeTransferDatasource {
     required bool isFavorite,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 250));
+    _ensureSeedBeneficiaries();
     final beneficiary = BeneficiaryModel(
       id: 'b_custom_${DateTime.now().millisecondsSinceEpoch}',
       fullName: fullName,
@@ -223,7 +179,51 @@ class FakeTransferDatasource {
       isFavorite: isFavorite,
       initials: _initials(fullName),
     );
-    _createdBeneficiaries.insert(0, beneficiary);
+    _beneficiaries.insert(0, beneficiary);
+    return beneficiary;
+  }
+
+  Future<BeneficiaryModel> updateBeneficiary({
+    required String id,
+    required String fullName,
+    required String phone,
+    required CountryModel country,
+    required OperatorModel operator,
+    required bool isFavorite,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    _ensureSeedBeneficiaries();
+    final index = _beneficiaries.indexWhere((item) => item.id == id);
+    if (index == -1) throw StateError('Beneficiaire introuvable');
+
+    final beneficiary = _beneficiaries[index].copyWith(
+      fullName: fullName,
+      phone: phone,
+      country: country,
+      operator: operator,
+      isFavorite: isFavorite,
+      initials: _initials(fullName),
+    );
+    _beneficiaries[index] = beneficiary;
+    return beneficiary;
+  }
+
+  Future<void> deleteBeneficiary(String id) async {
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    _ensureSeedBeneficiaries();
+    _beneficiaries.removeWhere((item) => item.id == id);
+  }
+
+  Future<BeneficiaryModel> toggleBeneficiaryFavorite(String id) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    _ensureSeedBeneficiaries();
+    final index = _beneficiaries.indexWhere((item) => item.id == id);
+    if (index == -1) throw StateError('Beneficiaire introuvable');
+
+    final beneficiary = _beneficiaries[index].copyWith(
+      isFavorite: !_beneficiaries[index].isFavorite,
+    );
+    _beneficiaries[index] = beneficiary;
     return beneficiary;
   }
 
@@ -266,6 +266,58 @@ class FakeTransferDatasource {
       currency: quote.sourceCurrency,
       createdAt: DateTime.now(),
     );
+  }
+
+  void _ensureSeedBeneficiaries() {
+    if (_beneficiaries.isNotEmpty) return;
+
+    final bj = countries.firstWhere((c) => c.code == 'BJ');
+    final ci = countries.firstWhere((c) => c.code == 'CI');
+    final sn = countries.firstWhere((c) => c.code == 'SN');
+    final cm = countries.firstWhere((c) => c.code == 'CM');
+    final mtnBj = operators.firstWhere((o) => o.countryCode == 'BJ');
+    final orangeCi = operators.firstWhere((o) => o.id == 'orange_ci');
+    final orangeSn = operators.firstWhere((o) => o.id == 'orange_sn');
+    final mtnCm = operators.firstWhere((o) => o.id == 'mtn_cm');
+
+    _beneficiaries.addAll([
+      BeneficiaryModel(
+        id: 'b1',
+        fullName: 'Ahmed Diallo',
+        phone: '+229 61 23 45 67',
+        country: bj,
+        operator: mtnBj,
+        isFavorite: true,
+        initials: 'AD',
+      ),
+      BeneficiaryModel(
+        id: 'b2',
+        fullName: 'Fatou Koffi',
+        phone: '+225 07 44 55 66',
+        country: ci,
+        operator: orangeCi,
+        isFavorite: true,
+        initials: 'FK',
+      ),
+      BeneficiaryModel(
+        id: 'b3',
+        fullName: 'Mamadou Ndiaye',
+        phone: '+221 77 321 45 98',
+        country: sn,
+        operator: orangeSn,
+        isFavorite: false,
+        initials: 'MN',
+      ),
+      BeneficiaryModel(
+        id: 'b4',
+        fullName: 'Jean Fotso',
+        phone: '+237 6 71 00 44 22',
+        country: cm,
+        operator: mtnCm,
+        isFavorite: false,
+        initials: 'JF',
+      ),
+    ]);
   }
 
   String _initials(String fullName) {

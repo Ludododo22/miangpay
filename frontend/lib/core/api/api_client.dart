@@ -41,6 +41,17 @@ class ApiClient {
     return _asMap(response.data);
   }
 
+  Future<Map<String, dynamic>> putJson(String path,
+      {Map<String, dynamic>? data}) async {
+    final response = await _dio.put<Object?>(path, data: data);
+    return _asMap(response.data);
+  }
+
+  Future<Map<String, dynamic>> deleteJson(String path) async {
+    final response = await _dio.delete<Object?>(path);
+    return _asMap(response.data);
+  }
+
   Map<String, dynamic> _asMap(Object? data) {
     if (data is Map<String, dynamic>) return data;
     if (data is Map) return Map<String, dynamic>.from(data);

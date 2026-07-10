@@ -40,6 +40,33 @@ class TransferRepositoryImpl implements TransferRepository {
   }
 
   @override
+  Future<BeneficiaryModel> updateBeneficiary({
+    required String id,
+    required String fullName,
+    required String phone,
+    required CountryModel country,
+    required OperatorModel operator,
+    required bool isFavorite,
+  }) {
+    return datasource.updateBeneficiary(
+      id: id,
+      fullName: fullName,
+      phone: phone,
+      country: country,
+      operator: operator,
+      isFavorite: isFavorite,
+    );
+  }
+
+  @override
+  Future<void> deleteBeneficiary(String id) => datasource.deleteBeneficiary(id);
+
+  @override
+  Future<BeneficiaryModel> toggleBeneficiaryFavorite(String id) {
+    return datasource.toggleBeneficiaryFavorite(id);
+  }
+
+  @override
   Future<FeeQuoteModel> calculateFee(
       {required double amount,
       required CountryModel sourceCountry,

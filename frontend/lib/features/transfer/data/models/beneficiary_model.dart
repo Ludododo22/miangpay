@@ -19,4 +19,24 @@ class BeneficiaryModel {
     required this.isFavorite,
     required this.initials,
   });
+
+  BeneficiaryModel copyWith({
+    String? id,
+    String? fullName,
+    String? phone,
+    CountryModel? country,
+    OperatorModel? operator,
+    bool? isFavorite,
+    String? initials,
+  }) {
+    return BeneficiaryModel(
+      id: id ?? this.id,
+      fullName: fullName ?? this.fullName,
+      phone: phone ?? this.phone,
+      country: country ?? this.country,
+      operator: operator ?? this.operator,
+      isFavorite: isFavorite ?? this.isFavorite,
+      initials: initials ?? this.initials,
+    );
+  }
 }

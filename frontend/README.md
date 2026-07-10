@@ -48,6 +48,9 @@ Endpoints deja branches cote frontend :
 - `GET /countries`
 - `GET /beneficiaries`
 - `POST /beneficiaries`
+- `PUT /beneficiaries/{beneficiary}`
+- `DELETE /beneficiaries/{beneficiary}`
+- `POST /beneficiaries/{beneficiary}/favorite`
 - `POST /transfer/calculate`
 - `POST /transfer/send`
 - `GET /transfer/history`

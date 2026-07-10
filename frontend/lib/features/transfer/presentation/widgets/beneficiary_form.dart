@@ -7,6 +7,7 @@ import '../../../../core/design_system/inputs/app_text_field.dart';
 import '../../../../core/design_system/inputs/phone_field.dart';
 import '../../../../core/forms/form_validators.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../data/models/beneficiary_model.dart';
 import '../../data/models/country_model.dart';
 import '../../data/models/operator_model.dart';
 import '../providers/transfer_providers.dart';
@@ -16,10 +17,12 @@ class BeneficiaryForm extends ConsumerStatefulWidget {
     super.key,
     required this.afterSaveRoute,
     this.popAfterSave = false,
+    this.initialBeneficiary,
   });
 
   final String afterSaveRoute;
   final bool popAfterSave;
+  final BeneficiaryModel? initialBeneficiary;
 
   @override
   ConsumerState<BeneficiaryForm> createState() => _BeneficiaryFormState();
@@ -33,6 +36,21 @@ class _BeneficiaryFormState extends ConsumerState<BeneficiaryForm> {
   String? operatorId;
   bool isFavorite = true;
   bool isSubmitting = false;
+
+  bool get isEditing => widget.initialBeneficiary != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final beneficiary = widget.initialBeneficiary;
+    if (beneficiary == null) return;
+
+    fullNameController.text = beneficiary.fullName;
+    phoneController.text = beneficiary.phone;
+    countryCode = beneficiary.country.code;
+    operatorId = beneficiary.operator.id;
+    isFavorite = beneficiary.isFavorite;
+  }
 
   @override
   void dispose() {
@@ -137,7 +155,7 @@ class _BeneficiaryFormState extends ConsumerState<BeneficiaryForm> {
           ),
           const SizedBox(height: 24),
           PrimaryButton(
-            label: 'Enregistrer',
+            label: isEditing ? 'Mettre a jour' : 'Enregistrer',
             icon: Icons.check_rounded,
             isLoading: isSubmitting,
             onPressed: isSubmitting ? null : _submit,
@@ -192,17 +210,34 @@ class _BeneficiaryFormState extends ConsumerState<BeneficiaryForm> {
 
     setState(() => isSubmitting = true);
     try {
-      await ref.read(transferRepositoryProvider).createBeneficiary(
-            fullName: fullNameController.text.trim(),
-            phone: phoneController.text.trim(),
-            country: selectedCountry,
-            operator: selectedOperator,
-            isFavorite: isFavorite,
-          );
+      final repository = ref.read(transferRepositoryProvider);
+      final beneficiary = widget.initialBeneficiary;
+      if (beneficiary == null) {
+        await repository.createBeneficiary(
+          fullName: fullNameController.text.trim(),
+          phone: phoneController.text.trim(),
+          country: selectedCountry,
+          operator: selectedOperator,
+          isFavorite: isFavorite,
+        );
+      } else {
+        await repository.updateBeneficiary(
+          id: beneficiary.id,
+          fullName: fullNameController.text.trim(),
+          phone: phoneController.text.trim(),
+          country: selectedCountry,
+          operator: selectedOperator,
+          isFavorite: isFavorite,
+        );
+      }
       ref.invalidate(beneficiariesProvider);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Beneficiaire enregistre')),
+        SnackBar(
+          content: Text(
+            isEditing ? 'Beneficiaire mis a jour' : 'Beneficiaire enregistre',
+          ),
+        ),
       );
       if (widget.popAfterSave) {
         context.pop();
@@ -212,8 +247,13 @@ class _BeneficiaryFormState extends ConsumerState<BeneficiaryForm> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Impossible d enregistrer le beneficiaire')),
+        SnackBar(
+          content: Text(
+            isEditing
+                ? 'Impossible de mettre a jour le beneficiaire'
+                : 'Impossible d enregistrer le beneficiaire',
+          ),
+        ),
       );
     } finally {
       if (mounted) setState(() => isSubmitting = false);
