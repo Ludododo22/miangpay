@@ -65,5 +65,21 @@ class DemoApiTest extends TestCase
         $this->getJson('/api/v1/support/tickets')
             ->assertOk()
             ->assertJsonStructure(['data' => [['id', 'reference', 'subject', 'status']]]);
+
+        $this->getJson('/api/v1/loyalty/overview')
+            ->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'points',
+                    'tier',
+                    'next_tier_points',
+                    'referrals',
+                    'referral_code',
+                    'tiers' => [['id', 'name', 'min_points', 'fee_discount']],
+                    'rewards' => [['id', 'title', 'points_cost', 'available']],
+                    'challenges' => [['id', 'title', 'reward_points', 'progress', 'target']],
+                    'activities' => [['id', 'label', 'points', 'activity_type']],
+                ],
+            ]);
     }
 }

@@ -10,31 +10,61 @@ class LoyaltyHistoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final activities = ref.watch(loyaltyActivitiesProvider);
+    final overview = ref.watch(loyaltyOverviewProvider);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('Historique des points')),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(24),
-        itemCount: activities.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final item = activities[index];
-          return Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(20)),
-            child: Row(children: [
-              const Icon(Icons.add_circle_rounded, color: AppColors.secondary),
-              const SizedBox(width: 14),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(item.title, style: const TextStyle(fontWeight: FontWeight.w900)),
-                const SizedBox(height: 4),
-                Text('${item.source} • ${DateFormat('dd/MM/yyyy').format(item.date)}', style: const TextStyle(color: AppColors.textSecondary)),
-              ])),
-              Text('+${item.points}', style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.w900)),
-            ]),
-          );
-        },
+      body: overview.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => const Center(child: Text('Erreur de chargement')),
+        data: (data) => ListView.separated(
+          padding: const EdgeInsets.all(24),
+          itemCount: data.activities.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final item = data.activities[index];
+            return Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.add_circle_rounded,
+                    color: AppColors.secondary,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.title,
+                          style: const TextStyle(fontWeight: FontWeight.w900),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${item.source} - ${DateFormat('dd/MM/yyyy').format(item.date)}',
+                          style:
+                              const TextStyle(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '+${item.points}',
+                    style: const TextStyle(
+                      color: AppColors.secondary,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

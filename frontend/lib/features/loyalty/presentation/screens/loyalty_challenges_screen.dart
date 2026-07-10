@@ -10,16 +10,23 @@ class LoyaltyChallengesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final challenges = ref.watch(loyaltyChallengesProvider);
+    final overview = ref.watch(loyaltyOverviewProvider);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Défis')),
-      body: GridView.count(
-        padding: const EdgeInsets.all(24),
-        crossAxisCount: 1,
-        mainAxisSpacing: 14,
-        childAspectRatio: 1.9,
-        children: [for (final challenge in challenges) ChallengeCard(challenge: challenge)],
+      appBar: AppBar(title: const Text('Defis')),
+      body: overview.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => const Center(child: Text('Erreur de chargement')),
+        data: (data) => GridView.count(
+          padding: const EdgeInsets.all(24),
+          crossAxisCount: 1,
+          mainAxisSpacing: 14,
+          childAspectRatio: 1.9,
+          children: [
+            for (final challenge in data.challenges)
+              ChallengeCard(challenge: challenge),
+          ],
+        ),
       ),
     );
   }

@@ -1,14 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/api/api_providers.dart';
 import '../../data/datasources/fake_loyalty_datasource.dart';
+import '../../data/models/loyalty_overview_model.dart';
 import '../../data/repositories/loyalty_repository.dart';
 
 final loyaltyRepositoryProvider = Provider<LoyaltyRepository>((ref) {
+  if (ref.watch(dataSourceModeProvider) == DataSourceMode.api) {
+    return LoyaltyRepository.api(ref.watch(apiClientProvider));
+  }
   return LoyaltyRepository(FakeLoyaltyDatasource());
 });
 
-final loyaltyPointsProvider = Provider<int>((ref) => ref.watch(loyaltyRepositoryProvider).points);
-final loyaltyTiersProvider = Provider((ref) => ref.watch(loyaltyRepositoryProvider).tiers);
-final rewardsProvider = Provider((ref) => ref.watch(loyaltyRepositoryProvider).rewards);
-final loyaltyChallengesProvider = Provider((ref) => ref.watch(loyaltyRepositoryProvider).challenges);
-final loyaltyActivitiesProvider = Provider((ref) => ref.watch(loyaltyRepositoryProvider).activities);
+final loyaltyOverviewProvider = FutureProvider<LoyaltyOverviewModel>((ref) {
+  return ref.watch(loyaltyRepositoryProvider).getOverview();
+});

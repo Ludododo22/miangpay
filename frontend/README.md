@@ -59,6 +59,8 @@ Endpoints deja branches cote frontend :
 - `GET /notifications`
 - `GET /promotions/active`
 - `GET /support/tickets`
+- `POST /support/tickets`
+- `GET /loyalty/overview`
 
 ## Lancement
 
@@ -75,4 +77,4 @@ C:\flutter\flutter\bin\cache\dart-sdk\bin\dart.exe analyze lib
 
 ## Notes
 
-Le mode API est volontairement progressif : les fake repositories restent disponibles pendant le branchement complet des donnees secondaires, des actions d'ecriture et du module fidelite en `AsyncValue`.
+Le mode API est volontairement progressif : les fake repositories restent disponibles pendant le branchement complet des donnees secondaires et des dernieres actions d'ecriture.

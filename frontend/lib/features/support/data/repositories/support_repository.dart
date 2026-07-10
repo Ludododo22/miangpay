@@ -27,6 +27,34 @@ class SupportRepository {
   Future<List<ChatMessageModel>> getChatMessages() =>
       _datasource.getChatMessages();
 
+  Future<SupportTicketModel> createTicket({
+    required String subject,
+    required String category,
+    required String message,
+  }) async {
+    final client = _client;
+    if (client == null) {
+      return SupportTicketModel(
+        id: '#LOCAL-${DateTime.now().millisecondsSinceEpoch}',
+        subject: subject,
+        category: category,
+        status: 'open',
+        lastMessage: message,
+        createdAt: DateTime.now(),
+      );
+    }
+
+    final json = await client.postJson(
+      '/support/tickets',
+      data: {
+        'subject': subject,
+        'category': category,
+        'message': message,
+      },
+    );
+    return _ticketFromJson(ApiJson.dataMap(json));
+  }
+
   SupportTicketModel _ticketFromJson(Map<String, dynamic> json) {
     return SupportTicketModel(
       id: ApiJson.string(json['reference'],
