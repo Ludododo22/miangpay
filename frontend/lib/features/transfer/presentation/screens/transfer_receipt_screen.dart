@@ -24,9 +24,16 @@ class TransferReceiptScreen extends ConsumerWidget {
               child: Column(children: [
                 ReceiptCard(receipt: receipt),
                 const SizedBox(height: 20),
-                PrimaryButton(label: 'Partager', icon: Icons.share_rounded, onPressed: () {}),
+                PrimaryButton(
+                  label: 'Partager',
+                  icon: Icons.share_rounded,
+                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Reçu prêt à partager'))),
+                ),
                 const SizedBox(height: 12),
-                SecondaryButton(label: 'Terminer', onPressed: () => context.go('/dashboard')),
+                SecondaryButton(
+                    label: 'Terminer',
+                    onPressed: () => context.go('/dashboard')),
               ]),
             ),
     );

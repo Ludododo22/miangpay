@@ -4,8 +4,9 @@ import 'app_text_field.dart';
 
 class PhoneField extends StatelessWidget {
   final TextEditingController? controller;
+  final String? Function(String?)? validator;
 
-  const PhoneField({super.key, this.controller});
+  const PhoneField({super.key, this.controller, this.validator});
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +16,7 @@ class PhoneField extends StatelessWidget {
       controller: controller,
       prefixIcon: Icons.phone_android_rounded,
       keyboardType: TextInputType.phone,
+      validator: validator,
     );
   }
 }

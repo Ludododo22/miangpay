@@ -1,52 +1,111 @@
 # MiangPay
 
-MiangPay est une plateforme fintech panafricaine de transfert d'argent multi-pays avec Mobile Money, cartes virtuelles, fidélité, promotions, notifications et support.
+MiangPay est une application fintech panafricaine de transfert d'argent multi-pays avec Mobile Money, cartes virtuelles, fidelite, promotions, notifications et support.
 
-## Structure
+Le projet est organise en monorepo :
 
 ```txt
 miangpay/
 ├── frontend/   # Application mobile Flutter
-├── backend/    # API Laravel / architecture backend
-├── docs/       # Documentation produit, UX, API, sécurité, déploiement
-├── deployment/ # Docker, Nginx, scripts infra
+├── backend/    # API Laravel 13
+├── docs/       # Documentation produit, architecture, securite, PAWAPAY
+├── deployment/ # Base infra
 └── scripts/    # Scripts projet
 ```
 
-## État actuel
+## Etat final local
 
-- `frontend/` contient le Front Office Flutter complet avec données fictives.
-- `backend/` contient le squelette Laravel-ready, l'architecture prévue, les endpoints, les migrations documentées et les interfaces de gateway.
-- PAWAPAY sera intégré plus tard via un adaptateur dédié.
+- Frontend Flutter navigable avec parcours Auth, KYC, Dashboard, Transfert, Historique, Beneficiaires, Cartes, Profil, Fidelite, Promotions, Notifications, Support et etats systeme.
+- Validation minimale ajoutee sur Auth, KYC et Support.
+- Actions principales du dashboard et des ecrans clefs branchees.
+- Ecran `TransferScreen` inutilise supprime.
+- Backend Laravel 13 installe et executable.
+- Base PostgreSQL locale `miangpay` avec donnees fictives.
+- API V1 connectee a PostgreSQL pour auth demo, pays, operateurs, beneficiaires, transferts, cartes, fidelite, promotions, notifications et support.
+- Frontend utilisable en mode fake par defaut ou en mode API locale via `--dart-define`.
 
-## Commandes Git
+## Prerequis locaux
 
-```bash
-git init
-git add .
-git commit -m "feat: initialize MiangPay monorepo"
-git branch -M main
-git remote add origin https://github.com/Ludododo22/miangpay.git
-git push -u origin main
+- Flutter SDK.
+- PHP 8.3+ avec `fileinfo`, `pdo_pgsql` et `pgsql`.
+- Composer.
+- PostgreSQL.
+
+Chemins utilises sur la machine de dev actuelle :
+
+```txt
+PHP: C:\php8.4\php.exe
+Composer: C:\composer\composer.bat
+PostgreSQL: postgres / ludovic
 ```
 
-## Développement frontend
+## Base de donnees
 
-```bash
+```powershell
+$env:PGPASSWORD='ludovic'
+psql -U postgres -h 127.0.0.1 -p 5432 -d postgres -f backend/database/sql/00_create_database.sql
+psql -U postgres -h 127.0.0.1 -p 5432 -d miangpay -f backend/database/sql/01_schema.sql
+psql -U postgres -h 127.0.0.1 -p 5432 -d miangpay -f backend/database/sql/02_seed_demo.sql
+```
+
+## Lancer le backend
+
+```powershell
+cd backend
+$env:PATH='C:\php8.4;' + $env:PATH
+C:\composer\composer.bat install
+C:\php8.4\php.exe artisan key:generate --force
+C:\php8.4\php.exe artisan serve --host=127.0.0.1 --port=8000
+```
+
+## Lancer le frontend
+
+Mode demo fake, sans backend :
+
+```powershell
 cd frontend
 flutter pub get
 flutter run
 ```
 
-## Développement backend
+Mode API locale :
 
-```bash
-cd backend
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate --seed
-php artisan serve
+```powershell
+cd frontend
+flutter run --dart-define=MIANGPAY_DATA_SOURCE=api --dart-define=MIANGPAY_API_BASE_URL=http://127.0.0.1:8000/api/v1
 ```
 
-> Le dossier backend est préparé pour Laravel. Il faudra lancer `composer create-project laravel/laravel backend` ou intégrer ces fichiers dans une installation Laravel complète si nécessaire.
+Compte demo local :
+
+```txt
+Telephone: +22961000000
+Mot de passe: ludovic
+OTP: n'importe quel code a 6 chiffres en mode demo
+```
+
+## Verification
+
+Backend :
+
+```powershell
+cd backend
+$env:PATH='C:\php8.4;' + $env:PATH
+C:\composer\composer.bat validate --strict
+C:\php8.4\php.exe artisan route:list --path=api
+C:\php8.4\php.exe artisan test
+```
+
+Frontend :
+
+```powershell
+cd frontend
+C:\flutter\flutter\bin\cache\dart-sdk\bin\dart.exe analyze lib
+```
+
+## Prochaines etapes production
+
+- Remplacer le token demo par une authentification reelle, par exemple Sanctum ou Passport.
+- Ajouter migrations Laravel officielles si le schema SQL doit devenir source de verite applicative.
+- Brancher les derniers repositories Flutter en API complete : dashboard, profil, historique, cartes, support.
+- Integrer PAWAPAY via l'adaptateur prevu, avec environnement sandbox puis production.
+- Ajouter tests API par endpoint et tests widget sur les parcours critiques.

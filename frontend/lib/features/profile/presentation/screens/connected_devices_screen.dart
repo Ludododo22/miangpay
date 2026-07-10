@@ -21,30 +21,71 @@ class ConnectedDevicesScreen extends ConsumerWidget {
         data: (items) => ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            const Text('Vérifiez les appareils qui ont accès à votre compte MiangPay.', style: TextStyle(color: AppColors.textSecondary, height: 1.5)),
+            const Text(
+                'Vérifiez les appareils qui ont accès à votre compte MiangPay.',
+                style: TextStyle(color: AppColors.textSecondary, height: 1.5)),
             const SizedBox(height: 18),
             ...items.map((device) => Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(20)),
-              child: Row(children: [
-                Container(height: 48, width: 48, decoration: BoxDecoration(color: AppColors.secondary.withValues(alpha: .1), borderRadius: BorderRadius.circular(16)), child: Icon(device.name.toLowerCase().contains('chrome') ? Icons.computer_rounded : Icons.phone_iphone_rounded, color: AppColors.secondary)),
-                const SizedBox(width: 14),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(children: [Expanded(child: Text(device.name, style: const TextStyle(fontWeight: FontWeight.w900))), if (device.current) const StatusBadge(label: 'Actuel', status: AppStatus.success)]),
-                  const SizedBox(height: 6),
-                  Text(device.location, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-                  Text(device.lastActive, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-                ])),
-                if (!device.current) TextButton(onPressed: () {}, child: const Text('Retirer')),
-              ]),
-            )),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Row(children: [
+                    Container(
+                        height: 48,
+                        width: 48,
+                        decoration: BoxDecoration(
+                            color: AppColors.secondary.withValues(alpha: .1),
+                            borderRadius: BorderRadius.circular(16)),
+                        child: Icon(
+                            device.name.toLowerCase().contains('chrome')
+                                ? Icons.computer_rounded
+                                : Icons.phone_iphone_rounded,
+                            color: AppColors.secondary)),
+                    const SizedBox(width: 14),
+                    Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Row(children: [
+                            Expanded(
+                                child: Text(device.name,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w900))),
+                            if (device.current)
+                              const StatusBadge(
+                                  label: 'Actuel', status: AppStatus.success)
+                          ]),
+                          const SizedBox(height: 6),
+                          Text(device.location,
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 13)),
+                          Text(device.lastActive,
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 13)),
+                        ])),
+                    if (!device.current)
+                      TextButton(
+                        onPressed: () => ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                                content: Text('Appareil retiré'))),
+                        child: const Text('Retirer'),
+                      ),
+                  ]),
+                )),
             const SizedBox(height: 10),
             OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Sessions secondaires retirées'))),
               icon: const Icon(Icons.logout_rounded),
               label: const Text('Déconnecter tous les autres appareils'),
-              style: OutlinedButton.styleFrom(foregroundColor: AppColors.error, side: const BorderSide(color: AppColors.error)),
+              style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.error,
+                  side: const BorderSide(color: AppColors.error)),
             ),
           ],
         ),

@@ -38,29 +38,40 @@ class _TopUpCardScreenState extends ConsumerState<TopUpCardScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, __) => const Center(child: Text('Erreur de chargement')),
         data: (card) {
-          if (card == null) return const Center(child: Text('Carte introuvable'));
-          final amount = double.tryParse(_amountController.text.replaceAll(' ', '')) ?? 0;
+          if (card == null)
+            return const Center(child: Text('Carte introuvable'));
+          final amount =
+              double.tryParse(_amountController.text.replaceAll(' ', '')) ?? 0;
           final fee = amount * 0.01;
           final credited = amount - fee;
 
           return ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              const Text('Source Mobile Money', style: TextStyle(fontWeight: FontWeight.w900)),
+              const Text('Source Mobile Money',
+                  style: TextStyle(fontWeight: FontWeight.w900)),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _source,
+                initialValue: _source,
                 items: const [
-                  DropdownMenuItem(value: 'MTN Mobile Money', child: Text('MTN Mobile Money')),
-                  DropdownMenuItem(value: 'Orange Money', child: Text('Orange Money')),
-                  DropdownMenuItem(value: 'Airtel Money', child: Text('Airtel Money')),
-                  DropdownMenuItem(value: 'Moov Money', child: Text('Moov Money')),
+                  DropdownMenuItem(
+                      value: 'MTN Mobile Money',
+                      child: Text('MTN Mobile Money')),
+                  DropdownMenuItem(
+                      value: 'Orange Money', child: Text('Orange Money')),
+                  DropdownMenuItem(
+                      value: 'Airtel Money', child: Text('Airtel Money')),
+                  DropdownMenuItem(
+                      value: 'Moov Money', child: Text('Moov Money')),
                 ],
-                onChanged: (value) => setState(() => _source = value ?? _source),
+                onChanged: (value) =>
+                    setState(() => _source = value ?? _source),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: AppColors.surface,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none),
                 ),
               ),
               const SizedBox(height: 18),
@@ -73,13 +84,22 @@ class _TopUpCardScreenState extends ConsumerState<TopUpCardScreen> {
               const SizedBox(height: 18),
               Container(
                 padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(20)),
                 child: Column(children: [
-                  _Row(label: 'Vous rechargez', value: '${amount.toStringAsFixed(0)} ${card.currency}'),
+                  _Row(
+                      label: 'Vous rechargez',
+                      value: '${amount.toStringAsFixed(0)} ${card.currency}'),
                   const Divider(height: 24),
-                  _Row(label: 'Frais estimés', value: '${fee.toStringAsFixed(0)} ${card.currency}'),
+                  _Row(
+                      label: 'Frais estimés',
+                      value: '${fee.toStringAsFixed(0)} ${card.currency}'),
                   const Divider(height: 24),
-                  _Row(label: 'Montant crédité', value: '${credited.toStringAsFixed(0)} ${card.currency}', highlight: true),
+                  _Row(
+                      label: 'Montant crédité',
+                      value: '${credited.toStringAsFixed(0)} ${card.currency}',
+                      highlight: true),
                 ]),
               ),
               const SizedBox(height: 24),
@@ -111,13 +131,17 @@ class _Row extends StatelessWidget {
   final String value;
   final bool highlight;
 
-  const _Row({required this.label, required this.value, this.highlight = false});
+  const _Row(
+      {required this.label, required this.value, this.highlight = false});
 
   @override
   Widget build(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Text(label, style: const TextStyle(color: AppColors.textSecondary)),
-      Text(value, style: TextStyle(fontWeight: FontWeight.w900, color: highlight ? AppColors.secondary : AppColors.textPrimary)),
+      Text(value,
+          style: TextStyle(
+              fontWeight: FontWeight.w900,
+              color: highlight ? AppColors.secondary : AppColors.textPrimary)),
     ]);
   }
 }

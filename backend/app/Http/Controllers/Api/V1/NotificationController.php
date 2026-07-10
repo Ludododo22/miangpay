@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Api\V1\Concerns\ResolvesDemoUser;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class NotificationController extends Controller
 {
-    public function __call($method, $parameters)
+    use ResolvesDemoUser;
+
+    public function index()
     {
         return response()->json([
-            'message' => 'MiangPay API endpoint placeholder',
-            'controller' => static::class,
-            'method' => $method,
+            'data' => DB::table('notifications')
+                ->where('user_id', $this->currentUserId())
+                ->orderByDesc('created_at')
+                ->get(),
         ]);
     }
 }

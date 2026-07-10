@@ -1,14 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/api/api_providers.dart';
 import '../../data/datasources/fake_transfer_datasource.dart';
 import '../../data/models/beneficiary_model.dart';
 import '../../data/models/country_model.dart';
 import '../../data/models/fee_quote_model.dart';
 import '../../data/models/receipt_model.dart';
+import '../../data/repositories/transfer_api_repository.dart';
+import '../../data/repositories/transfer_repository.dart';
 import '../../data/repositories/transfer_repository_impl.dart';
 
-final transferRepositoryProvider = Provider<TransferRepositoryImpl>((ref) {
+final transferRepositoryProvider = Provider<TransferRepository>((ref) {
+  final mode = ref.watch(dataSourceModeProvider);
+  if (mode == DataSourceMode.api) {
+    return TransferApiRepository(ref.watch(apiClientProvider));
+  }
   return TransferRepositoryImpl(FakeTransferDatasource());
+});
+
+final transferApiRepositoryProvider = Provider<TransferApiRepository>((ref) {
+  return TransferApiRepository(ref.watch(apiClientProvider));
 });
 
 final countriesProvider = FutureProvider<List<CountryModel>>((ref) {
@@ -61,8 +72,10 @@ class TransferDraftNotifier extends StateNotifier<TransferDraft> {
   final Ref ref;
 
   void setType(String type) => state = state.copyWith(transferType: type);
-  void setSourceCountry(CountryModel country) => state = state.copyWith(sourceCountry: country);
-  void setBeneficiary(BeneficiaryModel beneficiary) => state = state.copyWith(beneficiary: beneficiary);
+  void setSourceCountry(CountryModel country) =>
+      state = state.copyWith(sourceCountry: country);
+  void setBeneficiary(BeneficiaryModel beneficiary) =>
+      state = state.copyWith(beneficiary: beneficiary);
 
   Future<void> setAmount(double amount) async {
     final source = state.sourceCountry;
@@ -72,10 +85,10 @@ class TransferDraftNotifier extends StateNotifier<TransferDraft> {
       return;
     }
     final quote = await ref.read(transferRepositoryProvider).calculateFee(
-      amount: amount,
-      sourceCountry: source,
-      destinationCountry: beneficiary.country,
-    );
+          amount: amount,
+          sourceCountry: source,
+          destinationCountry: beneficiary.country,
+        );
     state = state.copyWith(amount: amount, quote: quote);
   }
 
@@ -87,15 +100,16 @@ class TransferDraftNotifier extends StateNotifier<TransferDraft> {
       throw StateError('Transfert incomplet');
     }
     final receipt = await ref.read(transferRepositoryProvider).submitTransfer(
-      beneficiary: beneficiary,
-      sourceCountry: source,
-      quote: quote,
-    );
+          beneficiary: beneficiary,
+          sourceCountry: source,
+          quote: quote,
+        );
     state = state.copyWith(receipt: receipt);
     return receipt;
   }
 }
 
-final transferDraftProvider = StateNotifierProvider<TransferDraftNotifier, TransferDraft>((ref) {
+final transferDraftProvider =
+    StateNotifierProvider<TransferDraftNotifier, TransferDraft>((ref) {
   return TransferDraftNotifier(ref);
 });
