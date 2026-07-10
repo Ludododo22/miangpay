@@ -12,7 +12,8 @@ class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() =>
+      _NotificationsScreenState();
 }
 
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
@@ -27,38 +28,83 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       appBar: AppBar(
         title: const Text('Centre de messages'),
         actions: [
-          IconButton(onPressed: () => context.go('/notifications/messages'), icon: const Icon(Icons.mark_chat_unread_rounded)),
-          IconButton(onPressed: () => context.go('/notifications/settings'), icon: const Icon(Icons.tune_rounded)),
+          IconButton(
+            tooltip: 'Tout marquer lu',
+            onPressed: _markAllRead,
+            icon: const Icon(Icons.mark_email_read_rounded),
+          ),
+          IconButton(
+            onPressed: () => context.go('/notifications/messages'),
+            icon: const Icon(Icons.mark_chat_unread_rounded),
+          ),
+          IconButton(
+            onPressed: () => context.go('/notifications/settings'),
+            icon: const Icon(Icons.tune_rounded),
+          ),
         ],
       ),
       body: notificationsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => const AppEmptyState(icon: Icons.error_outline_rounded, title: 'Erreur', message: 'Impossible de charger les notifications.'),
+        error: (_, __) => const AppEmptyState(
+          icon: Icons.error_outline_rounded,
+          title: 'Erreur',
+          message: 'Impossible de charger les notifications.',
+        ),
         data: (items) {
-          final filtered = selectedCategory == NotificationCategory.all ? items : items.where((e) => e.category == selectedCategory).toList();
+          final filtered = selectedCategory == NotificationCategory.all
+              ? items
+              : items.where((e) => e.category == selectedCategory).toList();
           return ListView(
             padding: const EdgeInsets.all(24),
             children: [
               _HeaderCard(unreadCount: items.where((e) => !e.isRead).length),
               const SizedBox(height: 20),
-              _CategoryChips(selected: selectedCategory, onChanged: (value) => setState(() => selectedCategory = value)),
+              _CategoryChips(
+                selected: selectedCategory,
+                onChanged: (value) => setState(() => selectedCategory = value),
+              ),
               const SizedBox(height: 20),
               if (filtered.isEmpty)
-                const AppEmptyState(icon: Icons.notifications_none_rounded, title: 'Aucune notification', message: 'Vous êtes à jour.')
+                const AppEmptyState(
+                  icon: Icons.notifications_none_rounded,
+                  title: 'Aucune notification',
+                  message: 'Vous etes a jour.',
+                )
               else
-                ...filtered.map((item) => NotificationMessageCard(notification: item)),
+                ...filtered.map(
+                  (item) => NotificationMessageCard(
+                    notification: item,
+                    onMarkRead: () => _markRead(item.id),
+                  ),
+                ),
             ],
           );
         },
       ),
     );
   }
+
+  Future<void> _markRead(String id) async {
+    await ref.read(notificationsRepositoryProvider).markRead(id);
+    _refreshNotifications();
+  }
+
+  Future<void> _markAllRead() async {
+    await ref.read(notificationsRepositoryProvider).markAllRead();
+    _refreshNotifications();
+  }
+
+  void _refreshNotifications() {
+    ref.invalidate(notificationsProvider);
+    ref.invalidate(unreadNotificationsProvider);
+    ref.invalidate(messageThreadsProvider);
+  }
 }
 
 class _HeaderCard extends StatelessWidget {
-  final int unreadCount;
-
   const _HeaderCard({required this.unreadCount});
+
+  final int unreadCount;
 
   @override
   Widget build(BuildContext context) {
@@ -73,16 +119,35 @@ class _HeaderCard extends StatelessWidget {
           Container(
             height: 52,
             width: 52,
-            decoration: BoxDecoration(color: Colors.white.withValues(alpha: .12), borderRadius: BorderRadius.circular(18)),
-            child: const Icon(Icons.notifications_active_rounded, color: Colors.white),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: .12),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Icon(
+              Icons.notifications_active_rounded,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Vos alertes MiangPay', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
-              const SizedBox(height: 6),
-              Text('$unreadCount notification(s) non lue(s)', style: const TextStyle(color: Colors.white70)),
-            ]),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Vos alertes MiangPay',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '$unreadCount notification(s) non lue(s)',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -91,19 +156,22 @@ class _HeaderCard extends StatelessWidget {
 }
 
 class _CategoryChips extends StatelessWidget {
+  const _CategoryChips({
+    required this.selected,
+    required this.onChanged,
+  });
+
   final NotificationCategory selected;
   final ValueChanged<NotificationCategory> onChanged;
-
-  const _CategoryChips({required this.selected, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     final values = <NotificationCategory, String>{
       NotificationCategory.all: 'Toutes',
       NotificationCategory.transaction: 'Transactions',
-      NotificationCategory.security: 'Sécurité',
+      NotificationCategory.security: 'Securite',
       NotificationCategory.promotion: 'Promos',
-      NotificationCategory.loyalty: 'Fidélité',
+      NotificationCategory.loyalty: 'Fidelite',
       NotificationCategory.card: 'Cartes',
       NotificationCategory.support: 'Support',
     };

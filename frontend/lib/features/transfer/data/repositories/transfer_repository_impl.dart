@@ -23,6 +23,23 @@ class TransferRepositoryImpl implements TransferRepository {
       datasource.getBeneficiaries();
 
   @override
+  Future<BeneficiaryModel> createBeneficiary({
+    required String fullName,
+    required String phone,
+    required CountryModel country,
+    required OperatorModel operator,
+    required bool isFavorite,
+  }) {
+    return datasource.createBeneficiary(
+      fullName: fullName,
+      phone: phone,
+      country: country,
+      operator: operator,
+      isFavorite: isFavorite,
+    );
+  }
+
+  @override
   Future<FeeQuoteModel> calculateFee(
       {required double amount,
       required CountryModel sourceCountry,

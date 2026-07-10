@@ -11,6 +11,14 @@ abstract class TransferRepository {
 
   Future<List<BeneficiaryModel>> getBeneficiaries();
 
+  Future<BeneficiaryModel> createBeneficiary({
+    required String fullName,
+    required String phone,
+    required CountryModel country,
+    required OperatorModel operator,
+    required bool isFavorite,
+  });
+
   Future<FeeQuoteModel> calculateFee({
     required double amount,
     required CountryModel sourceCountry,

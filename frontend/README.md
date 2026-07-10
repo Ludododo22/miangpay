@@ -47,6 +47,7 @@ Endpoints deja branches cote frontend :
 - `GET /user/profile`
 - `GET /countries`
 - `GET /beneficiaries`
+- `POST /beneficiaries`
 - `POST /transfer/calculate`
 - `POST /transfer/send`
 - `GET /transfer/history`
@@ -57,6 +58,8 @@ Endpoints deja branches cote frontend :
 - `POST /cards/{id}/block`
 - `POST /cards/{id}/unblock`
 - `GET /notifications`
+- `POST /notifications/{notification}/read`
+- `POST /notifications/read-all`
 - `GET /promotions/active`
 - `GET /support/tickets`
 - `POST /support/tickets`

@@ -82,4 +82,31 @@ class DemoApiTest extends TestCase
                 ],
             ]);
     }
+
+    public function test_demo_api_can_create_beneficiary_and_mark_notifications_read(): void
+    {
+        $phone = '+22997' . random_int(1000000, 9999999);
+
+        $this->postJson('/api/v1/beneficiaries', [
+            'full_name' => 'Test Beneficiary',
+            'phone' => $phone,
+            'country_code' => 'BJ',
+            'operator_code' => 'mtn_bj',
+            'is_favorite' => true,
+        ])
+            ->assertCreated()
+            ->assertJsonStructure(['data' => ['id', 'full_name', 'country_code', 'operator_code']]);
+
+        $notificationId = $this->getJson('/api/v1/notifications')
+            ->assertOk()
+            ->json('data.0.id');
+
+        $this->postJson("/api/v1/notifications/{$notificationId}/read")
+            ->assertOk()
+            ->assertJsonPath('data.is_read', true);
+
+        $this->postJson('/api/v1/notifications/read-all')
+            ->assertOk()
+            ->assertJsonStructure(['data']);
+    }
 }

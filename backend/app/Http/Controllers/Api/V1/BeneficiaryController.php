@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class BeneficiaryController extends Controller
 {
@@ -21,7 +22,13 @@ class BeneficiaryController extends Controller
     {
         $validated = $request->validate([
             'full_name' => ['required', 'string', 'max:160'],
-            'phone' => ['required', 'string', 'max:32'],
+            'phone' => [
+                'required',
+                'string',
+                'max:32',
+                Rule::unique('beneficiaries', 'phone')
+                    ->where(fn ($query) => $query->where('user_id', $this->currentUserId())),
+            ],
             'country_code' => ['required', 'string', 'size:2'],
             'operator_code' => ['required', 'string', 'max:40'],
             'relationship' => ['nullable', 'string', 'max:60'],

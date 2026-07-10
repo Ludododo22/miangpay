@@ -19,4 +19,32 @@ class NotificationController extends Controller
                 ->get(),
         ]);
     }
+
+    public function markRead(string $notification)
+    {
+        $exists = DB::table('notifications')
+            ->where('id', $notification)
+            ->where('user_id', $this->currentUserId())
+            ->exists();
+
+        abort_if(!$exists, 404, 'Notification not found');
+
+        DB::table('notifications')
+            ->where('id', $notification)
+            ->where('user_id', $this->currentUserId())
+            ->update(['is_read' => true]);
+
+        return response()->json([
+            'data' => DB::table('notifications')->where('id', $notification)->first(),
+        ]);
+    }
+
+    public function markAllRead()
+    {
+        DB::table('notifications')
+            ->where('user_id', $this->currentUserId())
+            ->update(['is_read' => true]);
+
+        return $this->index();
+    }
 }

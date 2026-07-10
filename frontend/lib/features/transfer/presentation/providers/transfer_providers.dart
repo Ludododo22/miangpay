@@ -30,6 +30,10 @@ final beneficiariesProvider = FutureProvider<List<BeneficiaryModel>>((ref) {
   return ref.watch(transferRepositoryProvider).getBeneficiaries();
 });
 
+final operatorsProvider = FutureProvider.family((ref, String countryCode) {
+  return ref.watch(transferRepositoryProvider).getOperators(countryCode);
+});
+
 class TransferDraft {
   final String transferType;
   final CountryModel? sourceCountry;

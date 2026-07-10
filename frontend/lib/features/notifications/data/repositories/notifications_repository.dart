@@ -8,15 +8,26 @@ import '../models/notification_settings_model.dart';
 class NotificationsRepository {
   final FakeNotificationsDatasource _datasource;
   final ApiClient? _client;
+  final Set<String> _readIds = {};
+  bool _allRead = false;
 
-  const NotificationsRepository(this._datasource) : _client = null;
+  NotificationsRepository(this._datasource) : _client = null;
   NotificationsRepository.api(ApiClient client)
       : _datasource = FakeNotificationsDatasource(),
         _client = client;
 
   Future<List<NotificationMessageModel>> getNotifications() async {
     final client = _client;
-    if (client == null) return _datasource.getNotifications();
+    if (client == null) {
+      final items = await _datasource.getNotifications();
+      return items
+          .map(
+            (item) => item.copyWith(
+              isRead: _allRead || _readIds.contains(item.id) || item.isRead,
+            ),
+          )
+          .toList();
+    }
 
     final json = await client.getJson('/notifications');
     return ApiJson.dataList(json).map(_notificationFromJson).toList();
@@ -40,6 +51,24 @@ class NotificationsRepository {
   }
 
   Future<NotificationSettingsModel> getSettings() => _datasource.getSettings();
+
+  Future<void> markRead(String id) async {
+    final client = _client;
+    if (client == null) {
+      _readIds.add(id);
+      return;
+    }
+    await client.postJson('/notifications/$id/read');
+  }
+
+  Future<void> markAllRead() async {
+    final client = _client;
+    if (client == null) {
+      _allRead = true;
+      return;
+    }
+    await client.postJson('/notifications/read-all');
+  }
 
   NotificationMessageModel _notificationFromJson(Map<String, dynamic> json) {
     return NotificationMessageModel(
