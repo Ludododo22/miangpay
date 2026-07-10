@@ -43,4 +43,27 @@ class DemoApiTest extends TestCase
                 ],
             ]);
     }
+
+    public function test_demo_api_exposes_account_modules(): void
+    {
+        $this->getJson('/api/v1/user/profile')
+            ->assertOk()
+            ->assertJsonStructure(['data' => ['id', 'phone', 'country_name', 'flag_emoji']]);
+
+        $this->getJson('/api/v1/cards')
+            ->assertOk()
+            ->assertJsonStructure(['data' => [['id', 'holder_name', 'last_digits', 'currency']]]);
+
+        $this->getJson('/api/v1/notifications')
+            ->assertOk()
+            ->assertJsonStructure(['data' => [['id', 'title', 'body', 'category']]]);
+
+        $this->getJson('/api/v1/promotions/active')
+            ->assertOk()
+            ->assertJsonStructure(['data' => [['id', 'title', 'description', 'discount_percent']]]);
+
+        $this->getJson('/api/v1/support/tickets')
+            ->assertOk()
+            ->assertJsonStructure(['data' => [['id', 'reference', 'subject', 'status']]]);
+    }
 }

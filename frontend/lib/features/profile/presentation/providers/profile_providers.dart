@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/api/api_providers.dart';
 import '../../data/datasources/fake_profile_datasource.dart';
 import '../../data/models/mobile_money_account_model.dart';
 import '../../data/models/security_device_model.dart';
@@ -8,6 +9,9 @@ import '../../data/models/user_profile_model.dart';
 import '../../data/repositories/profile_repository.dart';
 
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
+  if (ref.watch(dataSourceModeProvider) == DataSourceMode.api) {
+    return ProfileRepository.api(ref.watch(apiClientProvider));
+  }
   return ProfileRepository(FakeProfileDatasource());
 });
 
@@ -15,11 +19,13 @@ final userProfileProvider = FutureProvider<UserProfileModel>((ref) {
   return ref.watch(profileRepositoryProvider).getProfile();
 });
 
-final mobileMoneyAccountsProvider = FutureProvider<List<MobileMoneyAccountModel>>((ref) {
+final mobileMoneyAccountsProvider =
+    FutureProvider<List<MobileMoneyAccountModel>>((ref) {
   return ref.watch(profileRepositoryProvider).getMobileMoneyAccounts();
 });
 
-final securityDevicesProvider = FutureProvider<List<SecurityDeviceModel>>((ref) {
+final securityDevicesProvider =
+    FutureProvider<List<SecurityDeviceModel>>((ref) {
   return ref.watch(profileRepositoryProvider).getDevices();
 });
 

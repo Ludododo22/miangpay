@@ -44,10 +44,21 @@ Endpoints deja branches cote frontend :
 - `POST /auth/register`
 - `POST /auth/login`
 - `POST /auth/verify-otp`
+- `GET /user/profile`
 - `GET /countries`
 - `GET /beneficiaries`
 - `POST /transfer/calculate`
 - `POST /transfer/send`
+- `GET /transfer/history`
+- `GET /cards`
+- `GET /cards/{id}`
+- `POST /cards`
+- `POST /cards/{id}/load`
+- `POST /cards/{id}/block`
+- `POST /cards/{id}/unblock`
+- `GET /notifications`
+- `GET /promotions/active`
+- `GET /support/tickets`
 
 ## Lancement
 
@@ -64,4 +75,4 @@ C:\flutter\flutter\bin\cache\dart-sdk\bin\dart.exe analyze lib
 
 ## Notes
 
-Le mode API est volontairement progressif : les fake repositories restent disponibles pendant le branchement complet du dashboard, du profil, de l'historique, des cartes et du support.
+Le mode API est volontairement progressif : les fake repositories restent disponibles pendant le branchement complet des donnees secondaires, des actions d'ecriture et du module fidelite en `AsyncValue`.

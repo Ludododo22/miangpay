@@ -106,6 +106,6 @@ C:\flutter\flutter\bin\cache\dart-sdk\bin\dart.exe analyze lib
 
 - Remplacer le token demo par une authentification reelle, par exemple Sanctum ou Passport.
 - Ajouter migrations Laravel officielles si le schema SQL doit devenir source de verite applicative.
-- Brancher les derniers repositories Flutter en API complete : dashboard, profil, historique, cartes, support.
+- Brancher les derniers cas API Flutter : actions d'ecriture secondaires, fidelite en donnees asynchrones et rafraichissement automatique des providers.
 - Integrer PAWAPAY via l'adaptateur prevu, avec environnement sandbox puis production.
 - Ajouter tests API par endpoint et tests widget sur les parcours critiques.

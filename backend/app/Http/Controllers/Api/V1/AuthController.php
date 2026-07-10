@@ -97,7 +97,12 @@ class AuthController extends Controller
         $user = DB::table('users')
             ->join('countries', 'countries.id', '=', 'users.country_id')
             ->where('users.id', $this->currentUserId())
-            ->select('users.*', 'countries.name as country_name', 'countries.code as country_code')
+            ->select(
+                'users.*',
+                'countries.name as country_name',
+                'countries.code as country_code',
+                'countries.flag_emoji'
+            )
             ->first();
 
         return response()->json(['data' => $user]);
