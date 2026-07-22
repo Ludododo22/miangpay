@@ -13,6 +13,8 @@ class AuthApiRepository {
     required String country,
     required String operator,
     required String password,
+    required bool termsAccepted,
+    required bool privacyPolicyAccepted,
   }) async {
     final response = await _client.postJson(
       '/auth/register',
@@ -24,6 +26,10 @@ class AuthApiRepository {
         'country': country,
         'operator': operator,
         'password': password,
+        // Ces booleens permettent au backend de refuser une inscription API
+        // qui contournerait la case obligatoire de l interface Flutter.
+        'terms_accepted': termsAccepted,
+        'privacy_policy_accepted': privacyPolicyAccepted,
       },
     );
     _client.setBearerToken(response['token']?.toString());

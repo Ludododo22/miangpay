@@ -6,17 +6,18 @@ Le projet est organise en monorepo :
 
 ```txt
 miangpay/
-├── frontend/   # Application mobile Flutter
-├── backend/    # API Laravel 13
-├── docs/       # Documentation produit, architecture, securite, PAWAPAY
-├── deployment/ # Base infra
-└── scripts/    # Scripts projet
+|-- frontend/   # Application mobile Flutter
+|-- backend/    # API Laravel 13
+|-- docs/       # Documentation produit, architecture, securite, PAWAPAY
+|-- deployment/ # Base infra
++-- scripts/    # Scripts projet
 ```
 
 ## Etat final local
 
 - Frontend Flutter navigable avec parcours Auth, KYC, Dashboard, Transfert, Historique, Beneficiaires, Cartes, Profil, Fidelite, Promotions, Notifications, Support et etats systeme.
 - Validation minimale ajoutee sur Auth, KYC et Support.
+- Inscription avec acceptation obligatoire des conditions d utilisation et de la politique de confidentialite.
 - Actions principales du dashboard et des ecrans clefs branchees.
 - Ecran `TransferScreen` inutilise supprime.
 - Backend Laravel 13 installe et executable.

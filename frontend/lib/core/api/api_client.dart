@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 
 import 'api_config.dart';
 
+// Petit wrapper Dio partage par les repositories API: il fixe l URL de base,
+// les headers JSON et transforme les reponses en Map Dart exploitable.
 class ApiClient {
   ApiClient({Dio? dio})
       : _dio = dio ??

@@ -27,6 +27,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   String country = 'Benin';
   String operator = 'MTN Mobile Money';
+  bool hasAcceptedLegal = false;
   bool isSubmitting = false;
 
   @override
@@ -144,6 +145,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   prefixIcon: Icons.lock_rounded,
                   validator: FormValidators.password,
                 ),
+                const SizedBox(height: 16),
+                _LegalConsentTile(
+                  value: hasAcceptedLegal,
+                  onChanged: (value) =>
+                      setState(() => hasAcceptedLegal = value ?? false),
+                  onPrivacyTap: () => _showLegalDocument(
+                    title: 'Politique de confidentialite',
+                    sections: _privacyPolicySections,
+                  ),
+                  onTermsTap: () => _showLegalDocument(
+                    title: 'Conditions d utilisation',
+                    sections: _termsOfUseSections,
+                  ),
+                ),
                 const SizedBox(height: 24),
                 PrimaryButton(
                   label: isSubmitting ? 'Creation...' : 'Creer mon compte',
@@ -167,6 +182,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Future<void> _submit() async {
     if (!(formKey.currentState?.validate() ?? false)) return;
 
+    // L inscription doit prouver que l utilisateur a accepte les textes
+    // legaux avant de passer a l OTP, meme lorsque le backend est desactive.
+    if (!hasAcceptedLegal) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Veuillez accepter les conditions et la politique de confidentialite',
+          ),
+        ),
+      );
+      return;
+    }
+
     final phone = phoneController.text.trim();
     if (ref.read(dataSourceModeProvider) == DataSourceMode.fake) {
       context.go('/otp?phone=${Uri.encodeComponent(phone)}');
@@ -184,6 +212,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             country: _countryCode(country),
             operator: operator,
             password: passwordController.text,
+            termsAccepted: hasAcceptedLegal,
+            privacyPolicyAccepted: hasAcceptedLegal,
           );
       if (mounted) context.go('/otp?phone=${Uri.encodeComponent(phone)}');
     } catch (_) {
@@ -197,6 +227,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   String _countryCode(String value) {
+    // L interface affiche des noms lisibles, mais l API attend des codes ISO.
     if (value == 'Gabon') return 'GA';
     if (value == "Cote d'Ivoire") return 'CI';
     if (value == 'Senegal') return 'SN';
@@ -211,6 +242,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     required String currentValue,
     required ValueChanged<String> onSelected,
   }) {
+    // Les listes de pays/operateurs restent locales pour garder le parcours
+    // d inscription utilisable en demo, meme sans appel reseau prealable.
     return showModalBottomSheet<void>(
       context: context,
       builder: (context) {
@@ -243,6 +276,185 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           ),
         );
       },
+    );
+  }
+
+  Future<void> _showLegalDocument({
+    required String title,
+    required List<_LegalSection> sections,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: .82,
+          minChildSize: .45,
+          maxChildSize: .94,
+          builder: (context, controller) {
+            return ListView(
+              controller: controller,
+              padding: const EdgeInsets.all(24),
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Texte de demonstration a faire relire juridiquement avant publication.',
+                  style: TextStyle(color: AppColors.textSecondary, height: 1.5),
+                ),
+                const SizedBox(height: 20),
+                for (final section in sections) ...[
+                  Text(
+                    section.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    section.body,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                ],
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+const _privacyPolicySections = [
+  _LegalSection(
+    title: 'Donnees collectees',
+    body:
+        'MiangPay peut collecter les informations de compte, les donnees KYC, les numeros de telephone, les beneficiaires, les transactions, les tickets support et les informations techniques utiles a la securite.',
+  ),
+  _LegalSection(
+    title: 'Utilisation',
+    body:
+        'Ces donnees servent a creer le compte, verifier l identite, executer les transferts, proteger le service, assister le client et ameliorer l experience.',
+  ),
+  _LegalSection(
+    title: 'Partage',
+    body:
+        'Les donnees peuvent etre partagees avec les operateurs de paiement, partenaires de verification, prestataires techniques et autorites competentes lorsque cela est necessaire.',
+  ),
+  _LegalSection(
+    title: 'Droits utilisateur',
+    body:
+        'L utilisateur peut demander l acces, la correction ou la suppression de ses informations lorsque la loi applicable le permet.',
+  ),
+];
+
+const _termsOfUseSections = [
+  _LegalSection(
+    title: 'Compte',
+    body:
+        'L utilisateur doit fournir des informations exactes, garder ses identifiants confidentiels et signaler toute activite suspecte.',
+  ),
+  _LegalSection(
+    title: 'Transferts',
+    body:
+        'Les transferts doivent respecter les plafonds, controles KYC, frais affiches et regles des operateurs Mobile Money ou partenaires de paiement.',
+  ),
+  _LegalSection(
+    title: 'Usage interdit',
+    body:
+        'Le service ne doit pas etre utilise pour fraude, blanchiment, financement illicite, usurpation d identite ou contournement des controles.',
+  ),
+  _LegalSection(
+    title: 'Evolution',
+    body:
+        'Les conditions peuvent evoluer. Une version production devra etre relue et validee par un conseil juridique avant publication.',
+  ),
+];
+
+class _LegalSection {
+  const _LegalSection({required this.title, required this.body});
+
+  final String title;
+  final String body;
+}
+
+class _LegalConsentTile extends StatelessWidget {
+  const _LegalConsentTile({
+    required this.value,
+    required this.onChanged,
+    required this.onPrivacyTap,
+    required this.onTermsTap,
+  });
+
+  final bool value;
+  final ValueChanged<bool?> onChanged;
+  final VoidCallback onPrivacyTap;
+  final VoidCallback onTermsTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Checkbox(
+            value: value,
+            onChanged: onChanged,
+            activeColor: AppColors.secondary,
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  const Text('J accepte les '),
+                  InkWell(
+                    onTap: onTermsTap,
+                    child: const Text(
+                      'conditions d utilisation',
+                      style: TextStyle(
+                        color: AppColors.secondary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  const Text(' et la '),
+                  InkWell(
+                    onTap: onPrivacyTap,
+                    child: const Text(
+                      'politique de confidentialite',
+                      style: TextStyle(
+                        color: AppColors.secondary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  const Text('.'),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

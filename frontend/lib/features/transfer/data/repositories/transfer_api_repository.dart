@@ -6,6 +6,8 @@ import '../models/operator_model.dart';
 import '../models/receipt_model.dart';
 import 'transfer_repository.dart';
 
+// Implementation connectee a Laravel: elle traduit les modeles Flutter
+// en payloads API et reconstruit les objets utilises par les ecrans.
 class TransferApiRepository implements TransferRepository {
   const TransferApiRepository(this._client);
 

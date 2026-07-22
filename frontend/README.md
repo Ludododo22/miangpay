@@ -15,6 +15,7 @@ Application mobile Flutter de MiangPay.
 
 - Splash et onboarding
 - Authentification locale et appels API optionnels
+- Acceptation conditions d utilisation et politique de confidentialite
 - Verification OTP demo
 - Parcours KYC
 - Dashboard principal

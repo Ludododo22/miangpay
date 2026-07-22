@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
@@ -18,10 +19,12 @@ class AuthController extends Controller
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:80'],
             'last_name' => ['required', 'string', 'max:80'],
-            'phone' => ['required', 'string', 'max:32'],
-            'email' => ['nullable', 'email', 'max:160'],
+            'phone' => ['required', 'string', 'max:32', Rule::unique('users', 'phone')],
+            'email' => ['nullable', 'email', 'max:160', Rule::unique('users', 'email')],
             'country' => ['required', 'string', 'max:80'],
             'password' => ['required', 'string', 'min:6'],
+            'terms_accepted' => ['accepted'],
+            'privacy_policy_accepted' => ['accepted'],
         ]);
 
         $country = DB::table('countries')

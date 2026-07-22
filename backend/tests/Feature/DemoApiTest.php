@@ -44,6 +44,33 @@ class DemoApiTest extends TestCase
             ]);
     }
 
+    public function test_demo_register_requires_legal_acceptance(): void
+    {
+        $phone = '+22966' . random_int(1000000, 9999999);
+
+        $this->postJson('/api/v1/auth/register', [
+            'first_name' => 'Legal',
+            'last_name' => 'Check',
+            'phone' => $phone,
+            'email' => null,
+            'country' => 'BJ',
+            'password' => 'secret123',
+        ])->assertUnprocessable();
+
+        $this->postJson('/api/v1/auth/register', [
+            'first_name' => 'Legal',
+            'last_name' => 'Check',
+            'phone' => $phone,
+            'email' => null,
+            'country' => 'BJ',
+            'password' => 'secret123',
+            'terms_accepted' => true,
+            'privacy_policy_accepted' => true,
+        ])
+            ->assertCreated()
+            ->assertJsonStructure(['data' => ['id', 'phone'], 'token']);
+    }
+
     public function test_demo_api_exposes_account_modules(): void
     {
         $this->getJson('/api/v1/user/profile')

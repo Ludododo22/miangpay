@@ -75,6 +75,8 @@ import '../../features/transfer/presentation/screens/transfer_processing_screen.
 import '../../features/transfer/presentation/screens/transfer_success_screen.dart';
 import '../../features/transfer/presentation/screens/transfer_receipt_screen.dart';
 
+// Point central de navigation: chaque GoRoute associe une URL interne
+// a un ecran Flutter. Quand tu ajoutes un nouvel ecran, il faut le declarer ici.
 class AppRouter {
   static final router = GoRouter(
     initialLocation: '/splash',
